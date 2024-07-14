@@ -1,47 +1,21 @@
-# A Neovim Plugin Template
+# A Neovim plugin for a smarter `gf` goto file
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ellisonleao/nvim-plugin-template/lint-test.yml?branch=main&style=for-the-badge)
-![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+## Description
 
-A template repository for Neovim plugins.
+## Demonstration
 
-## Using it
+## Features
 
-Via `gh`:
+- Aware of the $PWD of a terminal buffer
+- Expands environment variables and `~` in <cfile>
+- Works with relative and absolute filepaths
+- Will search $PWD for a filename
+- Will search $PWD for partial filepaths and provide a quickfix menu if it
+  finds multiple options
 
-```
-$ gh repo create my-plugin -p ellisonleao/nvim-plugin-template
-```
+## Bugs
 
-Via github web page:
+When you are hovering over the word Makefile and if you are in folder1 and want
+to open folder1/folder2/Makefile but there is a folder1/Makefile it will open
+that instead
 
-Click on `Use this template`
-
-![](https://docs.github.com/assets/cb-36544/images/help/repository/use-this-template-button.png)
-
-## Features and structure
-
-- 100% Lua
-- Github actions for:
-  - running tests using [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) and [busted](https://olivinelabs.com/busted/)
-  - check for formatting errors (Stylua)
-  - vimdocs autogeneration from README.md file
-  - luarocks release (LUAROCKS_API_KEY secret configuration required)
-
-### Plugin structure
-
-```
-.
-├── lua
-│   ├── plugin_name
-│   │   └── module.lua
-│   └── plugin_name.lua
-├── Makefile
-├── plugin
-│   └── plugin_name.lua
-├── README.md
-├── tests
-│   ├── minimal_init.lua
-│   └── plugin_name
-│       └── plugin_name_spec.lua
-```
