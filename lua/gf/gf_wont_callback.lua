@@ -1,4 +1,32 @@
 
+
+-- vim.g.gf_xcld_expr = "build ./build.sh temp/file file file3"
+vim.g.gf_xcld_expr = "build .git"
+
+-- You could probably cache the string this builds and just rebuild it when the
+-- old gf_xcld_expr doesn't match the current gf_xcld_expr to avoid rerunning
+-- this needlessly
+local function exclude_expr()
+
+    local find_expr = "\\("
+
+    local excluded_files = vim.split(vim.g.gf_xcld_expr, ' ')
+
+    for i, excluded_file in ipairs(excluded_files) do
+        if excluded_file:find('/') then
+            find_expr = find_expr .. " -path " .. excluded_file
+        else
+            find_expr = find_expr .. " -name " .. excluded_file
+        end
+
+        if i ~= #excluded_files then
+            find_expr = find_expr .. " -o"
+        end
+    end
+
+    return find_expr .. " \\) -prune -o "
+end
+
 local function file_exists(filename)
     local file = io.open(filename, "r")
     if (file) then file:close() return true end
@@ -11,12 +39,14 @@ local function gf_wont_callback()
     local cfile = vim.fn.expand(vim.fn.expand("<cfile>"))
 
     if file_exists(cfile) then
-        vim.cmd("edit " .. cfile)
+        -- Replace % with \% since :edit will expand it
+        vim.cmd("edit " .. cfile:gsub("%%", "\\%%"))
         return
     end
 
     local cwd = ""
 
+    -- Aware of your terminal buffers' cwd
     local pid = vim.b.terminal_job_pid
     if pid ~= nil then
         local cwd_cmd = "readlink -e /proc/" .. pid .. "/cwd"
@@ -46,10 +76,12 @@ local function gf_wont_callback()
     local find_cmd = ""
 
     if cfile:find('/') then
-        find_cmd = "find " .. cwd .. " -path '*" .. cfile .. "*' 2> /dev/null"
+        find_cmd = "find " .. cwd .. exclude_expr() .. " -path '*" .. cfile .. "*'"
     else
-        find_cmd = "find " .. cwd .. " -name " .. cfile .. " 2> /dev/null"
+        find_cmd = "find " .. cwd .. exclude_expr() .. " -name " .. cfile
     end
+
+    find_cmd = find_cmd .. " 2> /dev/null"
 
     local find_stdout = vim.fn.system(find_cmd)
 
